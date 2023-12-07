@@ -50,11 +50,11 @@ class Handler(FileSystemEventHandler):
             all_lines = input_file.readlines()
 
             for line in all_lines:
-                alert_data = json.loads(line)
-                sid = alert_data["sid"]
-                rev = alert_data["rev"]
-                action = alert_data["action"]
-                msg = alert_data["msg"]
+                rule_data = json.loads(line)
+                sid = rule_data["sid"]
+                rev = rule_data["rev"]
+                action = rule_data["action"]
+                msg = rule_data["msg"]
                 jsn = line
 
                 try:
