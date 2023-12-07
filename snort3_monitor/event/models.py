@@ -33,7 +33,6 @@ class Event(models.Model):
     Model representing a Snort Intrusion Detection / Prevention System log event.
 
     Attributes:
-    - sid (int): Signature ID, identifies a given Snort rule.
     - rule_id (str): Rule ForeignKey representing associated rule.
     - timestamp (datetime): The date and time when the event occurred.
     - src_addr (str): The source IP address from which the event originated.
@@ -42,7 +41,6 @@ class Event(models.Model):
     - dst_port (int, optional): The destination port number if applicable, otherwise None.
     - proto (str): The network protocol used for the communication (e.g., TCP, UDP).
     """
-    sid = models.IntegerField()
     rule_id = models.ForeignKey(Rule, on_delete=models.CASCADE, to_field='id')
     timestamp = models.DateTimeField()
     src_addr = models.CharField(max_length=30)

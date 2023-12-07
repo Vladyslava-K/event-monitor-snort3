@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import django
+from django.db.utils import IntegrityError
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -56,7 +57,10 @@ class Handler(FileSystemEventHandler):
                 msg = alert_data["msg"]
                 jsn = line
 
-                Rule.objects.create(sid=sid, rev=rev, action=action, msg=msg, json=jsn)
+                try:
+                    Rule.objects.create(sid=sid, rev=rev, action=action, msg=msg, json=jsn)
+                except IntegrityError:
+                    pass
 
 
 if __name__ == "__main__":
