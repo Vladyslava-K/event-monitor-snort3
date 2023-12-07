@@ -9,7 +9,9 @@ class RequestLog(models.Model):
     - timestamp (datetime): Request time
     - user_ip (str): users IP address
     - http_method (str): HTTP request method
-    - request_data (json): contains query parameters and endpoint
+    - response_status_code (int): HTTP response status code
+    - endpoint (str): endpoint
+    - request_data (json): format key value of query parameters
     """
     timestamp = models.DateTimeField()
     user_ip = models.CharField(max_length=30)
