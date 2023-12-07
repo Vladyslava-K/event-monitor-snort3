@@ -1,10 +1,12 @@
+import json
 import os
 import sys
-import json
+
 import django
 from django.db.utils import IntegrityError
-from watchdog.observers import Observer
+
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "snort3_monitor.settings")
 django.setup()
