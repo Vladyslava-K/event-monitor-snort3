@@ -14,4 +14,6 @@ class RequestLog(models.Model):
     timestamp = models.DateTimeField()
     user_ip = models.CharField(max_length=30)
     http_method = models.CharField()
+    response_status_code = models.IntegerField()
+    endpoint = models.CharField()
     request_data = models.JSONField()

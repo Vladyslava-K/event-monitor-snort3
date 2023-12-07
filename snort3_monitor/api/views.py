@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
+from django.utils.timezone import make_aware
 
 from .serializers import RequestSerializer
 from request.models import RequestLog
@@ -16,23 +17,28 @@ class PeriodValidationError(Exception):
 class RequestList(APIView, PageNumberPagination):
     """
     Provides a GET method handler for collection of RequestLog instances
-    filtered by query_params(period_start, period_end)
+    filtered by query_params (period_start, period_end)
     """
     @staticmethod
     def period_validation(period_start, period_end):
         """
+        translates received strings to timezone aware datetime
         provides verification that the period for filtering is less than a week
-        calculates without hours, minutes and seconds
+
         :param period_start: start of period for filtering
         :param period_end: end of period for filtering
-        :return: None for the correct period or raises PeriodValidationError
+        :return: period_start, period_end in timezone aware datetime
+               or raises PeriodValidationError if the period more than a week
         """
-        period_start = datetime.strptime(period_start[:10], '%Y-%m-%d')
-        period_end = datetime.strptime(period_end[:10], '%Y-%m-%d')
-
+        date_formats = {10: '%Y-%m-%d', 13: '%Y-%m-%d-%H', 16: '%Y-%m-%d-%H:%M', 19: '%Y-%m-%d-%H:%M:%S'}
+        period_start = make_aware(datetime.strptime(period_start, date_formats[len(period_start)]))
+        period_end = make_aware(datetime.strptime(period_end, date_formats[len(period_end)]))
         date_differance = (period_end - period_start)
+
         if int(date_differance.days) > 7:
             raise PeriodValidationError
+        else:
+            return period_start, period_end
 
     def get(self, request):
         """
@@ -41,14 +47,16 @@ class RequestList(APIView, PageNumberPagination):
         try:
             period_start = self.request.query_params.get('period_start')
             period_end = self.request.query_params.get('period_end')
-            self.period_validation(period_start, period_end)
-            queryset = RequestLog.objects.filter(timestamp__gte=period_start).filter(timestamp__lte=period_end)
+            period_start, period_end = self.period_validation(period_start, period_end)
+
+            queryset = (RequestLog.objects.filter(timestamp__gte=period_start)
+                        .filter(timestamp__lte=period_end).order_by('id'))
 
             paginate_queryset = self.paginate_queryset(queryset, request, view=self)
             serializer_class = RequestSerializer(instance=paginate_queryset, many=True)
             return self.get_paginated_response(serializer_class.data)
 
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, KeyError):
             content = {
                 "error": "Bad Request",
                 "message": "The request is malformed or invalid. The request must include the parameters"
