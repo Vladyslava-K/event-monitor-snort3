@@ -4,4 +4,4 @@ from . import views
 
 urlpatterns = [
     path('requests-log', views.RequestList.as_view()),
-    ]
+]

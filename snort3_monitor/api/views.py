@@ -27,11 +27,10 @@ class RequestList(APIView, PageNumberPagination):
         :param period_end: end of period for filtering
         :return: None for the correct period or raises PeriodValidationError
         """
-        period_start = period_start[:10]
-        period_end = period_end[:10]
+        period_start = datetime.strptime(period_start[:10], '%Y-%m-%d')
+        period_end = datetime.strptime(period_end[:10], '%Y-%m-%d')
 
-        date_differance = (datetime.strptime(period_end, '%Y-%m-%d') -
-                           datetime.strptime(period_start, '%Y-%m-%d'))
+        date_differance = (period_end - period_start)
         if int(date_differance.days) > 7:
             raise PeriodValidationError
 
