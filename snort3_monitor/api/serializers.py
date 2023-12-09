@@ -9,7 +9,7 @@ class RequestSerializer(serializers.ModelSerializer):
         model = RequestLog
         fields = '__all__'
 
-        
+
 class EventSerializer(serializers.ModelSerializer):
     sid = serializers.IntegerField(source='rule_id.sid')
     action = serializers.CharField(source='rule_id.action')
