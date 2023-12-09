@@ -39,7 +39,7 @@ class Handler(FileSystemEventHandler):
     def __init__(self):
         self.lines_count = 0
         self.lines_count_file_path = '../snort_logs/lines_count.txt'
-        self.upload_linas_count(self.lines_count_file_path)
+        self.upload_lines_count(self.lines_count_file_path)
 
     def on_created(self, event):
         if event.src_path.endswith('alert_json.txt'):
@@ -51,7 +51,7 @@ class Handler(FileSystemEventHandler):
             alert_reader_logger.info('alert_json.txt was modified')
             self.process_alerts(event.src_path)
 
-    def upload_linas_count(self, file_path):
+    def upload_lines_count(self, file_path):
         """Read last saved lines_count from file"""
         if os.path.exists(file_path):
             with open(file_path, 'r') as file:
