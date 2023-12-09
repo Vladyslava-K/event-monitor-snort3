@@ -24,9 +24,6 @@ class Rule(models.Model):
         self.id = f"{self.sid}/{self.rev}"
         super().save(*args, **kwargs)
 
-    class Meta:
-        unique_together = ('sid', 'rev')
-
 
 class Event(models.Model):
     """
