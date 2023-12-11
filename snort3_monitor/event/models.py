@@ -37,6 +37,7 @@ class Event(models.Model):
     - dst_addr (str): The destination IP address to which the event is directed.
     - dst_port (int, optional): The destination port number if applicable, otherwise None.
     - proto (str): The network protocol used for the communication (e.g., TCP, UDP).
+    - is_deleted (bool): States whether an entry was deleted by user and would be returned on requests.
     """
     rule_id = models.ForeignKey(Rule, on_delete=models.CASCADE, to_field='id')
     timestamp = models.DateTimeField()
@@ -45,3 +46,4 @@ class Event(models.Model):
     dst_addr = models.CharField(max_length=30)
     dst_port = models.IntegerField(null=True, blank=True)
     proto = models.CharField(max_length=10)
+    is_deleted = models.BooleanField(default=False)
