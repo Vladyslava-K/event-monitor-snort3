@@ -175,7 +175,7 @@ class RequestList(APIView, PageNumberPagination):
     filtered by query_params (period_start, period_end)
     """
     @staticmethod
-    def period_validation(period_start, period_end):
+    def period_validation(period_start: str, period_end: str) -> tuple[datetime, datetime]:
         """
         translates received strings to timezone aware datetime
         provides verification that the period for filtering is less than a week
