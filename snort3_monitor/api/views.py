@@ -56,7 +56,8 @@ class EventsList(APIView, PageNumberPagination):
 
     def get(self, request):
         """
-        Endpoint for filtering Snort events based on: 'source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 'protocol'.
+        Endpoint for filtering Snort events based on: 'source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 
+        'protocol'.
         """
         queryset = Event.objects.all()
         filter_fields = ['source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 'protocol']
