@@ -94,6 +94,11 @@ class EventsList(APIView, PageNumberPagination):
         serializer = EventSerializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
 
+    def patch(self, request):
+        """Marks all events as deleted"""
+        Event.objects.all().update(is_deleted=True)
+        return Response({"message": "All events are marked as deleted."})
+
 
 class EventsCount(APIView, PageNumberPagination):
     @staticmethod
