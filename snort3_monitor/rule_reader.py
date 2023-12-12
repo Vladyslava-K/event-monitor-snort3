@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 
 import django
 
@@ -32,7 +33,7 @@ class Handler(FileSystemEventHandler):
         self.observer = observer
         self.file_processed = False
 
-    def on_modified(self, event):
+    def on_created(self, event):
         """
         Handle the on_updated event.
 
@@ -40,6 +41,7 @@ class Handler(FileSystemEventHandler):
             event (FileSystemEvent): The file system event object.
         """
         if event.src_path.endswith('snort_rules.json') and not self.file_processed:
+            time.sleep(2)
             self.process_rules(event.src_path)
             self.file_processed = True
             self.observer.stop()
