@@ -1,12 +1,8 @@
-import json
 import os
-import sys
-
+import json
+import subprocess
 import django
-from django.db.utils import IntegrityError
-
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
+import logging
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "snort3_monitor.settings")
 django.setup()
@@ -14,66 +10,60 @@ django.setup()
 from event.models import Rule
 
 
-class Handler(FileSystemEventHandler):
-    """Custom event handler for file system events."""
+logging.basicConfig(level=logging.ERROR,
+                    filename='../log_files/rule_reader.log',
+                    filemode='a',
+                    format='{asctime} - {name} - {levelname} - {message}',
+                    style='{'
+                    )
 
-    def __init__(self, observer):
-        """
-        Initialize the Handler.
 
-        Args:
-            observer (Observer): The watchdog observer instance.
-        """
-        super(Handler, self).__init__()
-        self.observer = observer
-        self.file_processed = False
+def rule_reader():
+    """
+    Executes Snort command, processes the output, and writes entries to the database.
+    Deletes the temporary output file after processing.
+    """
+    output_file_path = '../rules/snort_rules.json'
+    command = f'snort -c /usr/local/etc/snort/snort.lua --dump-rule-meta > {output_file_path}'
 
-    def on_created(self, event):
-        """
-        Handle the on_created event.
+    try:
+        subprocess.run(command, check=True, shell=True)
+        print('Snort command executed successfully.')
+    except subprocess.CalledProcessError as e:
+        logging.error('Error while dumping Snort rules to json:', e.stderr)
 
-        Args:
-            event (FileSystemEvent): The file system event object.
-        """
-        if event.src_path.endswith('snort_rules.json') and not self.file_processed:
-            self.process_rules(event.src_path)
-            self.file_processed = True
-            self.observer.stop()
+    process_and_write_to_db(output_file_path)
 
-    @staticmethod
-    def process_rules(file_path):
-        """
-        Process rules from a JSON file and store them in the database.
 
-        Args:
-            file_path (str): The path to the JSON file.
-        """
-        with open(file_path, 'r') as input_file:
-            all_lines = input_file.readlines()
+def process_and_write_to_db(output_file_path):
+    """
+    Reads the Snort rules from the specified file, extracts relevant data,
+    and writes entries to the Rule model in the Django database.
+    Deletes the temporary output file after processing.
+    """
+    with open(output_file_path, 'r', encoding='utf-8', errors='replace') as f:
+        all_lines = f.readlines()
 
-            for line in all_lines:
-                rule_data = json.loads(line)
-                sid = rule_data["sid"]
-                rev = rule_data["rev"]
-                action = rule_data["action"]
-                msg = rule_data["msg"]
-                jsn = line
+        for line in all_lines:
+            rule_data = json.loads(line)
+            gid = rule_data["gid"]
+            sid = rule_data["sid"]
+            rev = rule_data["rev"]
+            action = rule_data["action"]
+            msg = rule_data["msg"]
+            jsn = line
 
-                try:
-                    Rule.objects.create(sid=sid, rev=rev, action=action, msg=msg, json=jsn)
-                except IntegrityError:
-                    pass
+            try:
+                Rule.objects.create(gid=gid, sid=sid, rev=rev, action=action, msg=msg, json=jsn)
+            except Exception as e:
+                logging.error(f"Error writing to DB: {e}")
+
+        print('Entries were written to DB')
+
+        os.remove(output_file_path)
+
+        print('snort_rules.json was deleted')
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else '../rules/'
-    observer = Observer()
-    event_handler = Handler(observer)
-    observer.schedule(event_handler, path, recursive=False)
-    observer.start()
-    try:
-        while observer.is_alive():
-            observer.join(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    rule_reader()

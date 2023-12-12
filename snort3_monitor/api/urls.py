@@ -1,10 +1,10 @@
 from django.urls import path
 
-from .views import events_filter, events_count, RequestList
+from .views import EventsList, EventsCount, RequestList
 
 
 urlpatterns = [
-    path('events', events_filter, name='events_filter'),
-    path('events/count', events_count, name='events_count'),
+    path('events', EventsList.as_view(), name='events_list'),
+    path('events/count', EventsCount.as_view(), name='events_count'),
     path('requests-log', RequestList.as_view()),
 ]
