@@ -59,8 +59,8 @@ class EventsList(APIView, PageNumberPagination):
         Endpoint for filtering Snort events based on: 'source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid',
         'protocol'.
         """
-        queryset = Event.objects.all()
-        filter_fields = ['source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 'protocol']
+        queryset = Event.objects.filter(is_deleted=False)
+        filter_fields = ['source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 'protocol', 'page']
         mapping = {'sid': 'rule_id__sid', 'source_ip': 'src_addr', 'dest_ip': 'dst_addr',
                    'source_port': 'src_port', 'dest_port': 'dst_port', 'protocol': 'proto'}
         filters_dict = {}
@@ -83,8 +83,9 @@ class EventsList(APIView, PageNumberPagination):
                 if field == 'protocol':
                     values = [item.upper() for item in values]
 
-                field = mapping[field]
-                filters_dict[f'{field}__in'] = values
+                if field != 'page':
+                    field = mapping[field]
+                    filters_dict[f'{field}__in'] = values
 
         if filters_dict:
             queryset = queryset.filter(**filters_dict)
@@ -118,7 +119,7 @@ class EventsCount(APIView, PageNumberPagination):
         elif field == 'type' and values not in type_values:
             raise ValidationError('Invalid type selected. Should be "sid" or "addr"')
 
-    def get(self):
+    def get(self, request):
         """
         Endpoint for counting events based on specified period and type.
         """
@@ -144,7 +145,7 @@ class EventsCount(APIView, PageNumberPagination):
             return Response({'error': 'ValidationError',
                              'message': ''.join(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
 
-        queryset = Event.objects.all()
+        queryset = Event.objects.filter(is_deleted=False)
 
         period_filter = period_filters.get(period)
         if period_filter:
