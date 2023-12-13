@@ -95,6 +95,11 @@ class EventsList(APIView, PageNumberPagination):
         serializer = EventSerializer(paginated_queryset, many=True)
         return self.get_paginated_response(serializer.data)
 
+    def patch(self, request):
+        """Marks all events as deleted"""
+        Event.objects.all().update(is_deleted=True)
+        return Response({"message": "All events are marked as deleted."})
+
 
 class EventsCount(APIView, PageNumberPagination):
     @staticmethod
@@ -171,7 +176,7 @@ class RequestList(APIView, PageNumberPagination):
     filtered by query_params (period_start, period_end)
     """
     @staticmethod
-    def period_validation(period_start, period_end):
+    def period_validation(period_start: str, period_end: str) -> tuple[datetime, datetime]:
         """
         translates received strings to timezone aware datetime
         provides verification that the period for filtering is less than a week
