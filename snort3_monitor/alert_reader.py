@@ -21,9 +21,9 @@ from event.models import Event, Rule
 alert_reader_logger = logging.getLogger(__name__)
 alert_reader_logger.setLevel(logging.INFO)
 
-f_handler = logging.FileHandler('../log/alert_reader.log')
+f_handler = logging.FileHandler('../log_files/alert_reader.log')
 f_handler.setLevel(logging.INFO)
-f_format = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 f_handler.setFormatter(f_format)
 alert_reader_logger.addHandler(f_handler)
 
@@ -70,8 +70,7 @@ class Handler(FileSystemEventHandler):
             try:
                 alert_data = json.loads(line)
 
-                rules_by_sid = Rule.objects.filter(sid=alert_data["sid"]).order_by('-rev')  # get all rules with sid
-                rule = rules_by_sid[0]  # get rule with the biggest rev
+                rule = Rule.objects.get(sid=alert_data["sid"], rev=alert_data["rev"], gid=alert_data["gid"])
                 timestamp = make_aware(datetime.strptime(alert_data['timestamp'], '%y/%m/%d-%H:%M:%S.%f'))
 
                 Event.objects.create(rule_id=rule, timestamp=timestamp, src_addr=alert_data['src_addr'],
