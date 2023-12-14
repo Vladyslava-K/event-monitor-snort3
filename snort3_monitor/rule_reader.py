@@ -11,7 +11,7 @@ from event.models import Rule
 
 
 logging.basicConfig(level=logging.ERROR,
-                    filename='../log_files/rule_reader.log',
+                    filename='log_files/rule_reader.log',
                     filemode='a',
                     format='{asctime} - {name} - {levelname} - {message}',
                     style='{'
@@ -23,7 +23,7 @@ def rule_reader():
     Executes Snort command, processes the output, and writes entries to the database.
     Deletes the temporary output file after processing.
     """
-    output_file_path = '../rules/snort_rules.json'
+    output_file_path = 'rules/snort_rules.json'
     command = f'snort -c /usr/local/etc/snort/snort.lua --dump-rule-meta > {output_file_path}'
 
     try:
