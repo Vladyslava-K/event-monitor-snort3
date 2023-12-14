@@ -24,7 +24,7 @@ def rule_reader():
     Deletes the temporary output file after processing.
     """
     output_file_path = 'rules/snort_rules.json'
-    command = f'snort -c /usr/local/etc/snort/snort.lua --dump-rule-meta > {output_file_path}'
+    command = f'snort -c configs/custom_snort.lua --dump-rule-meta > {output_file_path}'
 
     try:
         subprocess.run(command, check=True, shell=True)
