@@ -1,0 +1,2 @@
+alert icmp any any -> any any ( msg:"ICMP Traffic Detected"; sid:1000001; metadata:policy security-ips alert; )
+alert tcp any any -> any 80 (msg:"HTTP Traffic Detected"; sid:1000002; )
