@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  server:
+    build: serv/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgdb
+    networks:
+      - snort_network
+    command:
+      - "/bin/bash"
+      - "-c"
+      - |
+        ./wait-for-it.sh pgdb:5432 -- \
+        python3 snort3_monitor/manage.py migrate && \
+        python3 snort3_monitor/rule_reader.py && \
+        supervisord -c configs/supervisord.conf
+
+  pgdb:
+    build: db/
+    ports:
+      - "5433:5432"
+    networks:
+      - snort_network
+    container_name: pgdb
+
+networks:
+  snort_network:
+    driver: bridge
