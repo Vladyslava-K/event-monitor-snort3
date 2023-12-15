@@ -2,9 +2,6 @@
 
 [![Lint](https://github.com/Vladyslava-K/event-monitor-snort3/workflows/Lint/badge.svg)](https://github.com/Vladyslava-K/event-monitor-snort3/actions?query=workflow%3ALint)
 
-Project scheme:
-<img width="2389" alt="Screenshot 2023-11-20 at 16 50 46" src="https://github.com/maksym-shulha/event-monitor-snort3/assets/123635020/e497a301-304d-48b6-931c-396b315ddcbe">
-
 1. Check that you have Docker and Docker Compose installed.
 2. Clone repository.
 3. Move 'docker' folder out of the repository folder.
@@ -20,3 +17,6 @@ For testing, it has local rule to catch anything on dst_port 80, so:
 
 Snort will catch these events, alert_reader will read them and store to DB, Djando/DRF project will provide access via 
 API by routes described in Open API Specification.
+
+Project scheme:
+<img width="2389" alt="Screenshot 2023-11-20 at 16 50 46" src="https://github.com/maksym-shulha/event-monitor-snort3/assets/123635020/e497a301-304d-48b6-931c-396b315ddcbe">
