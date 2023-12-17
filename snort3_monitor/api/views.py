@@ -12,7 +12,7 @@ from rest_framework import status
 
 from event.models import Rule, Event
 from request.models import RequestLog
-from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer
+from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer, RuleSerializer
 
 
 MIN_PORT, MAX_PORT = 0, 65535
@@ -56,8 +56,8 @@ class EventsList(APIView, PageNumberPagination):
 
     def get(self, request):
         """
-        Endpoint for filtering Snort events based on: 'source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid',
-        'protocol'.
+        Endpoint for providing Snort Events and filtering them based on: 'source_ip', 'dest_ip', 'source_port',
+        'dest_port', 'sid', 'protocol'.
         """
         queryset = Event.objects.filter(is_deleted=False)
         filter_fields = ['source_ip', 'dest_ip', 'source_port', 'dest_port', 'sid', 'protocol', 'page']
@@ -163,6 +163,53 @@ class EventsCount(APIView, PageNumberPagination):
             count = queryset.values('src_addr', 'dst_addr').annotate(count=Count('src_addr')).order_by('-count')
             serializer = AddrCountSerializer(count, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RulesList(APIView, PageNumberPagination):
+    @staticmethod
+    def validate_query_param(field: str, values: list):
+        """
+        Validate query parameters based on their type and raise ValidationError if validation fails.
+        """
+        if field == 'sid' and not all(sid.isnumeric() for sid in values):
+            raise ValidationError('Invalid sid')
+
+        elif field == 'gid' and not all(gid.isnumeric() for gid in values):
+            raise ValidationError('Invalid gid')
+
+    def get(self, request):
+        """
+        Endpoint for providing list of Snort Rules and filtering them based on: 'gid', 'sid', 'action'.
+        """
+        queryset = Rule.objects.all()
+        filter_fields = ['gid', 'sid', 'action', 'page']
+        filters_dict = {}
+
+        for field in self.request.query_params.keys():
+            if field not in filter_fields:
+                return Response({'error': 'ValidationError',
+                                 'message': f'Non-existent parameter used - "{field}"'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                values = self.request.query_params.getlist(field)
+
+            if values:
+                try:
+                    self.validate_query_param(field, values)
+                except ValidationError as e:
+                    return Response({'error': 'ValidationError',
+                                     'message': ''.join(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
+
+                if field != 'page':
+                    filters_dict[f'{field}__in'] = values
+
+        if filters_dict:
+            queryset = queryset.filter(**filters_dict)
+
+        paginated_queryset = self.paginate_queryset(queryset, request, view=self)
+
+        serializer = RuleSerializer(paginated_queryset, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class PeriodValidationError(Exception):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from event.models import Event
+from event.models import Event, Rule
 from request.models import RequestLog
 
 
@@ -18,6 +18,12 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'sid', 'timestamp', 'src_addr', 'src_port', 'dst_addr', 'dst_port', 'proto', 'action', 'msg']
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rule
+        fields = ['id', 'gid', 'sid', 'rev', 'action', 'msg']
 
 
 class SidCountSerializer(serializers.Serializer):
