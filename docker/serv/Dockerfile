@@ -16,4 +16,7 @@ RUN /usr/local/bin/pulledpork/pulledpork.py -c configs/pulledpork.conf
 COPY wait-for-it.sh /usr/src/event-monitor-snort3/wait-for-it.sh
 RUN chmod +x /usr/src/event-monitor-snort3/wait-for-it.sh
 
+ADD configs/crontab /etc/cron.d/my-cron-file
+RUN crontab /etc/cron.d/my-cron-file
+
 EXPOSE 8000
