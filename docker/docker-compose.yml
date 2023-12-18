@@ -26,6 +26,14 @@ services:
       - snort_network
     container_name: pgdb
 
+  front:
+    build: front/
+    ports:
+      - "8080:80"
+    networks:
+      - snort_network
+    container_name: front
+
 networks:
   snort_network:
     driver: bridge
