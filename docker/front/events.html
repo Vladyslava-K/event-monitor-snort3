@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Snort Events</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="index.html">Snort API Client</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="user_requests.html" id="userRequestsLink">User Requests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="events.html" id="eventsLink">Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="return false;">Event Count</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <p></p>
+        <h1>Snort Events</h1>
+
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text" id="addon-wrapping">sid</span>
+            <input type="text" class="form-control" aria-describedby="addon-wrapping" id="sid">
+        </div>
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text">protocol</span>
+            <input type="text" class="form-control" id="protocol">
+        </div>
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text">Source address</span>
+            <input type="text" class="form-control" id="source_ip">
+        </div>
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text">Source port</span>
+            <input type="text" class="form-control" id="source_port">
+        </div>
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text">Destination address</span>
+            <input type="text" class="form-control" id="dest_ip">
+        </div>
+        <div class="input-group flex-nowrap">
+            <span class="input-group-text">Destination port</span>
+            <input type="text" class="form-control" id="dest_port">
+        </div>
+
+        <button class="btn btn-primary mt-3" onclick="getSnortEvents()">Get Events</button>
+        <p></p>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item" id="prevPage"><a class="page-link" href="#">Previous page</a></li>
+                <li class="page-item" id="nextPage"><a class="page-link" href="#">Next page</a></li>
+            </ul>
+        </nav>
+        <div class="alert alert-danger" role="alert" id="errorMessage" style="display: none;"></div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>SID</th>
+                    <th>Timestamp</th>
+                    <th>Source IP</th>
+                    <th>Source Port</th>
+                    <th>Dest IP</th>
+                    <th>Dest Port</th>
+                    <th>Protocol</th>
+                    <th>Action</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="js/events.js"></script>
+</body>
+</html>
