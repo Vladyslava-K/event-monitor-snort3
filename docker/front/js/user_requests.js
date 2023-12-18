@@ -1,6 +1,11 @@
 document.getElementById('dataForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
+    const errorDisplay = document.getElementById('errorDisplay');
+    errorDisplay.innerHTML = ''; // Clear existing data
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = ''; // Clear existing data
+
     const periodStart = document.getElementById('periodStart').value;
     const periodEnd = document.getElementById('periodEnd').value;
     const queryParams = `period_start=${periodStart}&period_end=${periodEnd}`;
@@ -30,7 +35,7 @@ function loadUserRequests(url) {
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            document.getElementById('dataDisplay').innerHTML = `<div class="alert alert-danger" role="alert">${error.message}</div>`;
+            document.getElementById('errorDisplay').innerHTML = `<div class="alert alert-danger" role="alert">${error.message}</div>`;
         });
 }
 
