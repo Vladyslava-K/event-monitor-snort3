@@ -1,6 +1,14 @@
 let currentPage = 1;
 
-function getSnortEvents() {
+document.addEventListener('DOMContentLoaded', function() {
+    getSnortEvents();
+});
+
+function getSnortEvents(newSearch = true) {
+    if (newSearch) {
+        currentPage = 1;
+    }
+
     const sid = $('#sid').val();
     const sourceIp = $('#source_ip').val();
     const destIp = $('#dest_ip').val();
@@ -80,24 +88,31 @@ function displayEvents(data) {
     });
 
     if (data.previous) {
-        $('#prevPage').html(`<a class="page-link" href="#" onclick="loadPage(${currentPage - 1})">Previous page</a>`);
+        $('#prevPage').html(`<a class="page-link" href="#" onclick="loadPrevPage(${currentPage - 1})">Previous page</a>`);
     } else {
         $('#prevPage').html('<span class="page-link disabled">Previous page</span>');
     }
 
     if (data.next) {
-        $('#nextPage').html(`<a class="page-link" href="#" onclick="loadPage(${currentPage + 1})">Next page</a>`);
+        $('#nextPage').html(`<a class="page-link" href="#" onclick="loadNextPage(${currentPage + 1})">Next page</a>`);
     } else {
         $('#nextPage').html('<span class="page-link disabled">Next page</span>');
     }
 }
 
-function loadPage(page) {
-    currentPage = page;
-    getSnortEvents();
+function loadPrevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        getSnortEvents(false);
+    }
+}
+
+function loadNextPage() {
+    currentPage++;
+    getSnortEvents(false);
 }
 
 $('#dataForm').submit(function(event) {
     event.preventDefault();
-    getSnortEvents();
+    getSnortEvents(true);
 });
