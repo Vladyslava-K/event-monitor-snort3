@@ -51,6 +51,7 @@ function getSnortEvents(newSearch = true) {
         success: function(data) {
             displayEvents(data);
             $('#errorMessage').hide();
+            $('#updateMessage').hide();
         },
         error: function(xhr, textStatus, errorThrown) {
             $('#eventsTableBody').empty();
@@ -115,4 +116,34 @@ function loadNextPage() {
 $('#dataForm').submit(function(event) {
     event.preventDefault();
     getSnortEvents(true);
+});
+
+function deleteEvents() {
+    const patchData = {
+    };
+
+    $.ajax({
+        url: 'http://127.0.0.1:8000/api/v1/events',
+        type: 'PATCH',
+        data: JSON.stringify(patchData),
+        contentType: 'application/json',
+        success: function(response) {
+            // handle success
+            $('#errorMessage').hide();
+            console.log('Patch successful', response);
+            $('#updateMessage').text('Delete successful!').show();
+        },
+
+        error: function(xhr, textStatus, errorThrown) {
+            const errorResponse = JSON.parse(xhr.responseText);
+            const errorMessage = errorResponse.message;
+            $('#errorMessage').text(`Error: ${errorMessage}`).show();
+            console.error('Patch error', errorThrown);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    getSnortEvents();
+    document.getElementById('deleteButton').addEventListener('click', deleteEvents);
 });
