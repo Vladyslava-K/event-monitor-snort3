@@ -5,6 +5,8 @@ services:
     build: serv/
     ports:
       - "8000:8000"
+      - "9001:9001"
+      - "12345:12345"
     depends_on:
       - pgdb
     networks:

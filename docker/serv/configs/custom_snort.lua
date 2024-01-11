@@ -19,3 +19,25 @@ alert_json =
     fields = 'gid sid rev timestamp src_addr src_port dst_addr dst_port proto action msg',
     file = true
 }
+
+perf_monitor = {  
+    modules = { },
+    base = true,
+    packets = 1,
+    seconds = 5,
+    output = file, 
+    format = json,    
+    summary = false, 
+}
+
+profiler = {
+  modules = {
+    show = false
+  },
+  memory = {
+    show = false
+  },
+  rules = {
+    count = 10
+  }
+}

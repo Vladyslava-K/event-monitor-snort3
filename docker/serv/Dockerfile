@@ -1,4 +1,4 @@
-FROM mshulha/snort3-python3:0.1
+FROM mshulha/snort3-python3:0.3
 
 COPY event-monitor-snort3 /usr/src/event-monitor-snort3
 
