@@ -13,6 +13,7 @@ from rest_framework import status
 from event.models import Rule, Event
 from request.models import RequestLog
 from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer, RuleSerializer
+from .snort_telnet import execute_snort_command
 
 
 MIN_PORT, MAX_PORT = 0, 65535
@@ -273,3 +274,22 @@ class RequestList(APIView, PageNumberPagination):
                 "message": "The period must be less than a week"
             }
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ExecuteCommand(APIView):
+    """
+       API endpoint for executing Snort commands.
+
+       This class provides a POST method to execute Snort commands received in the request payload.
+       The 'command' parameter is expected in the request data.
+
+       Returns response from Snort received via Telnet or error if no command was provided.
+    """
+    def post(self, request):
+        command = self.request.data.get('command', None)
+
+        if command is not None:
+            response = execute_snort_command(command)
+            return Response({"response": response})
+        else:
+            return Response({"error": "No command provided."})
