@@ -36,6 +36,12 @@ services:
       - snort_network
     container_name: front
 
+  snort-mongo:
+    image: mongodb/mongodb-community-server:latest
+    container_name: snort-mongo
+    networks:
+      - snort_network
+
 networks:
   snort_network:
     driver: bridge
