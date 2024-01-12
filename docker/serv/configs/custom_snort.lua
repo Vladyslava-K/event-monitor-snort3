@@ -26,8 +26,8 @@ perf_monitor = {
     packets = 1,
     seconds = 5,
     output = file, 
-    format = json,    
-    summary = false, 
+    format = 'json',
+    summary = false,
 }
 
 profiler = {
