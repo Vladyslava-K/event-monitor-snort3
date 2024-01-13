@@ -1,4 +1,6 @@
 import logging
+from datetime import datetime
+
 from db_config import perf_monitor
 import json
 
@@ -25,6 +27,7 @@ def read_perf_monitor_logs():
             json_data = json.loads(json_content)
 
             for document in json_data:
+                document['timestamp'] = datetime.utcfromtimestamp(document['timestamp'])
                 if not perf_monitor.find_one({'timestamp': document.get('timestamp')}):
                     perf_monitor.insert_one(document)
 

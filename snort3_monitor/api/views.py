@@ -16,6 +16,7 @@ from rest_framework import status
 
 from event.models import Rule, Event
 from request.models import RequestLog
+from .mongo_functions import pgc_aggr, pgc_module_aggr, pgc_module_report, pgc_report
 from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer, RuleSerializer
 from .snort_telnet import execute_snort_command
 from rule_reader import rule_reader
@@ -402,3 +403,77 @@ class RuleProfilerLast(APIView):
             return Response({"result": rule_data})
         else:
             return Response({"result": "No rule profiling result yet"})
+
+
+class PerfMonitor(APIView):
+    """
+    A view class that handles performance monitoring requests.
+
+    This class provides an API endpoint for retrieving performance data
+    within a specified time range. It supports aggregation and filtering by a prefix.
+    """
+    @staticmethod
+    def date_translation(date: str) -> datetime:
+        """
+        Translates a string representing a date into a datetime object.
+
+        This method supports multiple date formats and is used to process
+        date strings received from API requests.
+
+        Args:
+            date (str): The date string to be translated. Supported formats
+                        include 'YYYY-MM-DD', 'YYYY-MM-DD-HH', and 'YYYY-MM-DD-HH:MM'.
+
+        Returns:
+            datetime: The translated datetime object.
+
+        Raises:
+            ValueError: If the date string does not match the expected format.
+        """
+        date_formats = {10: '%Y-%m-%d', 13: '%Y-%m-%d-%H', 16: '%Y-%m-%d-%H:%M'}
+
+        date = datetime.strptime(date, date_formats[len(date)])
+        return date
+
+    def get(self, request):
+        """
+        Handles GET requests to retrieve performance data.
+
+        This method fetches performance data based on the 'begin', 'end',
+        and optional 'prefix' query parameters. It supports optional data
+        aggregation.
+        """
+        begin = self.request.query_params.get('begin')
+        end = self.request.query_params.get('end')
+        aggr = self.request.query_params.get('aggr', 'false')
+
+        if not begin or not end:
+            content = {
+                "error": "Bad Request",
+                "message": "Begin and End parameters are required"
+            }
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            begin = self.date_translation(begin)
+            end = self.date_translation(end)
+            prefix = self.request.query_params.get('prefix')
+        except (ValueError, KeyError, TypeError):
+            content = {"error": "Bad Request", "message": "Date string does not match expected formats. "
+                       "Available formats: '%Y-%m-%d', '%Y-%m-%d-%H', '%Y-%m-%d-%H:%M'"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if aggr.lower() == "true":
+            if prefix:
+                data = pgc_module_aggr(begin, end, prefix)
+            else:
+                data = pgc_aggr(begin, end)
+        else:
+            if prefix:
+                data = pgc_module_report(begin, end, prefix)
+            else:
+                data = pgc_report(begin, end)
+                for item in data:
+                    item['_id'] = str(item['_id'])
+
+        return Response({"response": data})

@@ -3,7 +3,7 @@ from mongo.db_config import perf_monitor
 
 def pgc_report(start, end):
     result = []
-    with perf_monitor.find({'timestamp': {'$gte': start}, 'timestamp': {'$lte': end}}) as cursor:
+    with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
             result.append(document)
 
@@ -12,13 +12,14 @@ def pgc_report(start, end):
 
 def pgc_module_report(start, end, module):
     result = {}
-    with perf_monitor.find({'timestamp': {'$gte': start}, 'timestamp': {'$lte': end}}) as cursor:
+    with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
             timestamp = document['timestamp']
             module_data = document.get(module)
             if not module_data:
                 continue
             else:
+                timestamp = str(timestamp)
                 result[timestamp] = {}
             for metric, value in module_data.items():
                 if metric not in result[timestamp]:
@@ -30,7 +31,7 @@ def pgc_module_report(start, end, module):
 
 def pgc_aggr(start, end):
     result = {}
-    with perf_monitor.find({'timestamp': {'$gte': start}, 'timestamp': {'$lte': end}}) as cursor:
+    with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
             for module, metrics in document.items():
                 if module in ['timestamp', '_id']:
@@ -52,7 +53,7 @@ def pgc_aggr(start, end):
 
 def pgc_module_aggr(start, end, module):
     result = {module: {}}
-    with perf_monitor.find({'timestamp': {'$gte': start}, 'timestamp': {'$lte': end}}) as cursor:
+    with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
             module_data = document.get(module)
             if not module_data:
