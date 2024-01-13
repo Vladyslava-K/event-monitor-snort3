@@ -38,7 +38,7 @@ def rule_reader():
 def process_and_write_to_db(output_file_path):
     """
     Reads the Snort rules from the specified file, extracts relevant data,
-    and writes entries to the Rule model in the Django database.
+    and writes new entries to the Rule model in the Django database.
     Deletes the temporary output file after processing.
     """
     with open(output_file_path, 'r', encoding='utf-8', errors='replace') as f:
@@ -53,10 +53,11 @@ def process_and_write_to_db(output_file_path):
             msg = rule_data["msg"]
             jsn = line
 
-            try:
-                Rule.objects.create(gid=gid, sid=sid, rev=rev, action=action, msg=msg, json=jsn)
-            except Exception as e:
-                logging.error(f"Error writing to DB: {e}")
+            if not Rule.objects.filter(gid=gid, sid=sid, rev=rev):
+                try:
+                    Rule.objects.create(gid=gid, sid=sid, rev=rev, action=action, msg=msg, json=jsn)
+                except Exception as e:
+                    logging.error(f"Error writing to DB: {e}")
 
         print('Entries were written to DB')
 

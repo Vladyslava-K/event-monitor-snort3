@@ -1,4 +1,5 @@
 import ipaddress
+import subprocess
 import json
 import os
 import time
@@ -17,7 +18,7 @@ from event.models import Rule, Event
 from request.models import RequestLog
 from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer, RuleSerializer
 from .snort_telnet import execute_snort_command
-
+from rule_reader import rule_reader
 
 MIN_PORT, MAX_PORT = 0, 65535
 
@@ -281,21 +282,42 @@ class RequestList(APIView, PageNumberPagination):
 
 class ExecuteCommand(APIView):
     """
-       API endpoint for executing Snort commands.
+    API endpoint for executing Snort commands.
 
-       This class provides a POST method to execute Snort commands received in the request payload.
-       The 'command' parameter is expected in the request data.
+    This class provides a POST method to execute Snort commands received in the request payload.
+    The 'command' parameter is expected in the request data.
 
-       Returns response from Snort received via Telnet or error if no command was provided.
+    Returns response from Snort received via Telnet or error if no command was provided.
     """
     def post(self, request):
         command = self.request.data.get('command', None)
 
         if command is not None:
             response = execute_snort_command(command)
-            return Response({"response": response})
+            return Response({'response': response})
         else:
-            return Response({"error": "No command provided."})
+            return Response({'error': 'No command provided.'})
+
+
+class UpdateRules(APIView):
+    """
+    API endpoint for updating intrusion detection system rules using pulledpork.
+
+    This view performs an update operation by executing pulledpork with the specified configuration file.
+    If the update is successful, it triggers a rule_reader function to write newly added rules to db.
+    Returns an output of the pulledpork update execution.
+    """
+    def get(self, request):
+        command = '/usr/local/bin/pulledpork/pulledpork.py -c configs/pulledpork.conf -v'
+
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+
+        response = result.stdout
+
+        if 'Program execution complete' in response:
+            rule_reader()
+
+        return Response({'response': response})
 
 
 class StartRuleProfiler(APIView):
