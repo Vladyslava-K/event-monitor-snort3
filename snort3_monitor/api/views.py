@@ -1,4 +1,7 @@
 import ipaddress
+import json
+import os
+import time
 from datetime import timedelta, datetime
 
 from django.db.models import Count
@@ -293,3 +296,87 @@ class ExecuteCommand(APIView):
             return Response({"response": response})
         else:
             return Response({"error": "No command provided."})
+
+
+class StartRuleProfiler(APIView):
+    """
+    This class provides an endpoint for managing Snort rule profiling via a GET method.
+
+    Features:
+    - Initiates rule profiling and saves the results to a file.
+    - Accepts query parameters 'time' or 'until' to specify the profiling duration.
+      - 'time': The duration for which to run the profiling, in minutes.
+      - 'until': A specific time at which to stop profiling, in HH:MM format.
+    - Automatically checks if a profiling session is currently active.
+      - If active, the current profiling is stopped before starting a new session.
+    - The results of the rule profiling are saved to a designated file upon completion.
+
+    GET request with either 'time' or 'until' parameter is required to trigger the profiling process.
+    """
+    def get(self, request):
+        profiling_time = self.request.query_params.get('time')
+        profiling_until = self.request.query_params.get('until')
+
+        if bool(profiling_until) == bool(profiling_time):
+            message = "Either 'time' or 'until' parameter must be provided, but not both."
+            content = {"error": "Bad Request", "message": message}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handling 'until' parameter
+        if profiling_until:
+            try:
+                time_until = make_aware(datetime.strptime(profiling_until, '%H:%M'))
+                time_now = now()
+                if time_until <= time_now:
+                    raise ValueError("The 'until' time must be in the future.")
+                seconds_to_profiling = (time_until - time_now).total_seconds()
+            except ValueError as e:
+                content = {"error": "Bad Request", "message": str(e)}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handling 'time' parameter
+        elif profiling_time.isdigit():
+            seconds_to_profiling = int(profiling_time) * 60
+        else:
+            content = {"error": "Bad Request", "message": "The 'time' parameter must be an integer."}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        # Running Snort commands
+        rule_status = execute_snort_command('profiler.rule_status()')
+        if "Rule profiler is enabled" in rule_status:
+            execute_snort_command('profiler.rule_stop()')
+        execute_snort_command('profiler.rule_start()')
+        time.sleep(seconds_to_profiling)
+        rule_dump = execute_snort_command("profiler.rule_dump('json')")
+        execute_snort_command("profiler.rule_stop()")
+
+        # Saving result to the file
+        with open('snort_logs/rule_profiling.json', 'w') as file:
+            json_string = rule_dump.strip('o\")~')
+            data = json.loads(json_string)
+
+            data['startTime'] = datetime.fromtimestamp(data['startTime']).strftime('%Y-%m-%d %H:%M:%S')
+            data['endTime'] = datetime.fromtimestamp(data['endTime']).strftime('%Y-%m-%d %H:%M:%S')
+
+            json.dump(data, file)
+
+        return Response({"result": "Ruse profiling saved successfully!"})
+
+
+class RuleProfilerLast(APIView):
+    """
+    API Endpoint for Retrieving the Latest Snort Rule Profiling Result.
+
+    This APIView subclass provides a GET method to fetch the most recent results of Snort rule profiling.
+
+    - Reads the last saved Snort rule profiling results from a file.
+    - Returns the profiling data in JSON format if available.
+    """
+    def get(self, request):
+        path = 'snort_logs/rule_profiling.json'
+        if os.path.exists(path):
+            with open(path, 'r') as file:
+                rule_data = json.load(file)
+            return Response({"result": rule_data})
+        else:
+            return Response({"result": "No rule profiling result yet"})
