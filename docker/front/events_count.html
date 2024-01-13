@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Data Display</title>
+    <title>Events Count</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
@@ -16,13 +16,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="user_requests.html" id="userRequestsLink">User Requests</a>
+                        <a class="nav-link" href="user_requests.html" id="userRequestsLink">User Requests</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="events.html" id="eventsLink">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="events_count.html">Events Count</a>
+                        <a class="nav-link active" href="events_count.html">Events Count</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="rules.html" id="rulesLink">Rules</a>
@@ -36,51 +36,45 @@
                 </ul>
             </div>
         </nav>
+    </div>
+    <div class="container mt-4">
+        <h2>Events Count</h2>
         <p></p>
-        <h1>Get user requests</h1>
-        <form id="dataForm">
-            <div class="form-group">
-                <label for="periodStart">Period Start</label>
-                <input type="date" class="form-control" id="periodStart" required>
+        <form id="eventsCountForm">
+            <div class="mb-3">
+                <label for="periodSelect" class="form-label">Select Period:</label>
+                <select class="form-select" id="periodSelect">
+                    <option value="all">All</option>
+                    <option value="last_day">Last Day</option>
+                    <option value="last_week">Last Week</option>
+                    <option value="last_month">Last Month</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label for="periodEnd">Period End</label>
-                <input type="date" class="form-control" id="periodEnd" required>
+            <div class="mb-3">
+                <label for="typeSelect" class="form-label">Select Type:</label>
+                <select class="form-select" id="typeSelect">
+                    <option value="sid">SID</option>
+                    <option value="addr">Address</option>
+                </select>
             </div>
-            <button type="submit" class="btn btn-primary">Get Data</button>
+            <button type="button" class="btn btn-primary" onclick="getEventsCount()">Get Events Count</button>
         </form>
-        <p></p>
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                <li class="page-item" id="prevPage"><a class="page-link" href="#">Previous page</a></li>
-                <li class="page-item" id="nextPage"><a class="page-link" href="#">Next page</a></li>
-            </ul>
-        </nav>
-        <div id="dataDisplay" class="mt-3">
-            <div id="errorDisplay" class="mt-3">
-            </div>
+
+        <div class="mt-4">
             <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Timestamp</th>
-                        <th>User IP</th>
-                        <th>HTTP Method</th>
-                        <th>Status Code</th>
-                        <th>Endpoint</th>
-                        <th>Request Data</th>
-                    </tr>
+                <thead id="eventsCountTableHeader">
+                    <!-- Table headers will be dynamically populated here -->
                 </thead>
-                <tbody id="tableBody">
-                    <!-- Data rows will go here -->
-                </tbody>
+                <tbody id="eventsCountTableBody"></tbody>
             </table>
         </div>
     </div>
 
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script src="js/user_requests.js"></script>
+
+    <script src="js/events_count.js"></script>
 </body>
 </html>
