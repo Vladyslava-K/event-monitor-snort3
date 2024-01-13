@@ -16,6 +16,7 @@ from rest_framework import status
 
 from event.models import Rule, Event
 from request.models import RequestLog
+from .mongo_functions import pgc_aggr, pgc_module_aggr, pgc_module_report, pgc_report
 from .serializers import EventSerializer, SidCountSerializer, AddrCountSerializer, RequestSerializer, RuleSerializer
 from .snort_telnet import execute_snort_command
 from rule_reader import rule_reader
@@ -402,3 +403,54 @@ class RuleProfilerLast(APIView):
             return Response({"result": rule_data})
         else:
             return Response({"result": "No rule profiling result yet"})
+
+
+class PerfMonitor(APIView):
+    @staticmethod
+    def date_translation(date: str) -> datetime:
+        """
+        Translates received strings to datetime
+
+        :param date: start of period for filtering
+        :return: date in datetime
+        """
+        date_formats = {10: '%Y-%m-%d', 13: '%Y-%m-%d-%H', 16: '%Y-%m-%d-%H:%M'}
+
+        date = datetime.strptime(date, date_formats[len(date)])
+        return date
+
+    def get(self, request):
+        begin = self.request.query_params.get('begin')
+        end = self.request.query_params.get('end')
+        aggr = self.request.query_params.get('aggr', 'false')
+
+        if not begin or not end:
+            content = {
+                "error": "Bad Request",
+                "message": "Begin and End parameters are required"
+            }
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            begin = self.date_translation(begin)
+            end = self.date_translation(end)
+            prefix = self.request.query_params.get('prefix')
+        except (ValueError, KeyError):
+            content = {"error": "Bad Request", "message": "Date string does not match expected formats. "
+                       "Available formats: '%Y-%m-%d', '%Y-%m-%d-%H', '%Y-%m-%d-%H:%M'"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if aggr.lower() == "true":
+            if prefix:
+                data = pgc_module_aggr(begin, end, prefix)
+            else:
+                data = pgc_aggr(begin, end)
+        else:
+            if prefix:
+                data = pgc_module_report(begin, end, prefix)
+            else:
+                data = pgc_report(begin, end)
+                for item in data:
+                    item['_id'] = str(item['_id'])
+
+        return Response({"response": data})

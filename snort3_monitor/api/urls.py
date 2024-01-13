@@ -1,6 +1,7 @@
 from django.urls import path
 
-from .views import EventsList, EventsCount, RequestList, RulesList, ExecuteCommand, UpdateRules, StartRuleProfiler, RuleProfilerLast
+from .views import (EventsList, EventsCount, RequestList, RulesList, ExecuteCommand, UpdateRules, StartRuleProfiler,
+                    RuleProfilerLast, PerfMonitor)
 
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path('update-rules', UpdateRules.as_view(), name='update_rules'),
     path('rule-profiler', StartRuleProfiler.as_view(), name='rule_profiler'),
     path('rule-profiler-last', RuleProfilerLast.as_view(), name='rule_profiler_last'),
+    path('perf-monitor', PerfMonitor.as_view(), name='perf_monitor'),
 ]
