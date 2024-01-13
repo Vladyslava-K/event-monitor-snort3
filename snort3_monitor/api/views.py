@@ -406,13 +406,29 @@ class RuleProfilerLast(APIView):
 
 
 class PerfMonitor(APIView):
+    """
+    A view class that handles performance monitoring requests.
+
+    This class provides an API endpoint for retrieving performance data
+    within a specified time range. It supports aggregation and filtering by a prefix.
+    """
     @staticmethod
     def date_translation(date: str) -> datetime:
         """
-        Translates received strings to datetime
+        Translates a string representing a date into a datetime object.
 
-        :param date: start of period for filtering
-        :return: date in datetime
+        This method supports multiple date formats and is used to process
+        date strings received from API requests.
+
+        Args:
+            date (str): The date string to be translated. Supported formats
+                        include 'YYYY-MM-DD', 'YYYY-MM-DD-HH', and 'YYYY-MM-DD-HH:MM'.
+
+        Returns:
+            datetime: The translated datetime object.
+
+        Raises:
+            ValueError: If the date string does not match the expected format.
         """
         date_formats = {10: '%Y-%m-%d', 13: '%Y-%m-%d-%H', 16: '%Y-%m-%d-%H:%M'}
 
@@ -420,6 +436,13 @@ class PerfMonitor(APIView):
         return date
 
     def get(self, request):
+        """
+        Handles GET requests to retrieve performance data.
+
+        This method fetches performance data based on the 'begin', 'end',
+        and optional 'prefix' query parameters. It supports optional data
+        aggregation.
+        """
         begin = self.request.query_params.get('begin')
         end = self.request.query_params.get('end')
         aggr = self.request.query_params.get('aggr', 'false')
@@ -435,7 +458,7 @@ class PerfMonitor(APIView):
             begin = self.date_translation(begin)
             end = self.date_translation(end)
             prefix = self.request.query_params.get('prefix')
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, TypeError):
             content = {"error": "Bad Request", "message": "Date string does not match expected formats. "
                        "Available formats: '%Y-%m-%d', '%Y-%m-%d-%H', '%Y-%m-%d-%H:%M'"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
