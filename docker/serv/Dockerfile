@@ -13,6 +13,8 @@ RUN mkdir log_files && \
 RUN pip install -r requirements.txt
 RUN /usr/local/bin/pulledpork/pulledpork.py -c configs/pulledpork.conf
 
+ENV PYTHONPATH="/usr/src/event-monitor-snort3/"
+
 COPY wait-for-it.sh /usr/src/event-monitor-snort3/wait-for-it.sh
 RUN chmod +x /usr/src/event-monitor-snort3/wait-for-it.sh
 

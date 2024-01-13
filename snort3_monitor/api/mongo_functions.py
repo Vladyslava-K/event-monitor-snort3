@@ -1,4 +1,4 @@
-from snort3_monitor.mongo.db_config import perf_monitor
+from mongo.db_config import perf_monitor
 
 
 def pgc_report(start, end):
