@@ -325,11 +325,15 @@ class StartRuleProfiler(APIView):
         # Handling 'until' parameter
         if profiling_until:
             try:
-                time_until = make_aware(datetime.strptime(profiling_until, '%H:%M'))
+                until_time = datetime.strptime(profiling_until, '%H:%M').time()
+                until_today = datetime.now().date()
+                combined_datetime = datetime.combine(until_today, until_time)
+                combined_datetime_aware = make_aware(combined_datetime)
+
                 time_now = now()
-                if time_until <= time_now:
+                if combined_datetime_aware <= time_now:
                     raise ValueError("The 'until' time must be in the future.")
-                seconds_to_profiling = (time_until - time_now).total_seconds()
+                seconds_to_profiling = (combined_datetime_aware - time_now).total_seconds()
             except ValueError as e:
                 content = {"error": "Bad Request", "message": str(e)}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -351,16 +355,24 @@ class StartRuleProfiler(APIView):
         execute_snort_command("profiler.rule_stop()")
 
         # Saving result to the file
-        with open('snort_logs/rule_profiling.json', 'w') as file:
+        try:
             json_string = rule_dump.strip('o\")~')
-            data = json.loads(json_string)
+            if json_string:
+                data = json.loads(json_string)
 
-            data['startTime'] = datetime.fromtimestamp(data['startTime']).strftime('%Y-%m-%d %H:%M:%S')
-            data['endTime'] = datetime.fromtimestamp(data['endTime']).strftime('%Y-%m-%d %H:%M:%S')
+                data['startTime'] = datetime.fromtimestamp(data['startTime']).strftime('%Y-%m-%d %H:%M:%S')
+                data['endTime'] = datetime.fromtimestamp(data['endTime']).strftime('%Y-%m-%d %H:%M:%S')
 
-            json.dump(data, file)
+                with open('snort_logs/rule_profiling.json', 'w') as file:
+                    json.dump(data, file)
+            else:
+                return Response({"result": "Error: JSON string is empty or invalid."},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except json.JSONDecodeError:
+            return Response({"result": "Error: JSON string is empty or invalid."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"result": "Ruse profiling saved successfully!"})
+        return Response({"result": "Rule profiling saved successfully!"})
 
 
 class RuleProfilerLast(APIView):
@@ -375,8 +387,12 @@ class RuleProfilerLast(APIView):
     def get(self, request):
         path = 'snort_logs/rule_profiling.json'
         if os.path.exists(path):
-            with open(path, 'r') as file:
-                rule_data = json.load(file)
-            return Response({"result": rule_data})
+            try:
+                with open(path, 'r') as file:
+                    rule_data = json.load(file)
+                return Response({"result": rule_data})
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON format in the profiling result file"},
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"result": "No rule profiling result yet"})
