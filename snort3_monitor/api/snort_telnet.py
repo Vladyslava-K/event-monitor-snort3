@@ -15,7 +15,7 @@ def execute_snort_command(command):
 
             tn.write(command.encode('ascii') + b'\n')
 
-            response = tn.read_until(b'o")~', timeout=30).decode('ascii')
+            response = tn.read_until(b'o")~', timeout=30).decode('ascii').strip('o")~')
 
             return response
 
