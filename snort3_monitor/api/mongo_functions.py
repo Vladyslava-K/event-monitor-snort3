@@ -2,6 +2,16 @@ from mongo.db_config import perf_monitor
 
 
 def pgc_report(start, end):
+    """
+    Retrieve performance monitoring data within the specified time range.
+
+    Parameters:
+    - start (datetime): Start timestamp for the query range.
+    - end (datetime): End timestamp for the query range.
+
+    Returns:
+    - list: A list of documents containing performance monitoring data within the specified time range.
+    """
     result = []
     with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
@@ -11,6 +21,17 @@ def pgc_report(start, end):
 
 
 def pgc_module_report(start, end, module):
+    """
+    Retrieve performance monitoring data for a specific module within the specified time range.
+
+    Parameters:
+    - start (datetime): Start timestamp for the query range.
+    - end (datetime): End timestamp for the query range.
+    - module (str): The module for which performance data is requested.
+
+    Returns:
+    - dict: A dictionary containing performance data for the specified module within the time range.
+    """
     result = {}
     with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
@@ -30,6 +51,16 @@ def pgc_module_report(start, end, module):
 
 
 def pgc_aggr(start, end):
+    """
+    Aggregate performance monitoring data for all modules within the specified time range.
+
+    Parameters:
+    - start (datetime): Start timestamp for the query range.
+    - end (datetime): End timestamp for the query range.
+
+    Returns:
+    - dict: A dictionary containing aggregated performance data for all modules within the time range.
+    """
     result = {}
     with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
@@ -52,6 +83,17 @@ def pgc_aggr(start, end):
 
 
 def pgc_module_aggr(start, end, module):
+    """
+    Aggregate performance monitoring data for a specific module within the specified time range.
+
+    Parameters:
+    - start (datetime): Start timestamp for the query range.
+    - end (datetime): End timestamp for the query range.
+    - module (str): The module for which performance data is requested.
+
+    Returns:
+    - dict: A dictionary containing aggregated performance data for the specified module within the time range.
+    """
     result = {module: {}}
     with perf_monitor.find({'timestamp': {'$gte': start, '$lte': end}}) as cursor:
         for document in cursor:
