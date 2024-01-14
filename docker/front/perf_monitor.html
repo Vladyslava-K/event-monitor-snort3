@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events Count</title>
+    <title>Performance Monitor API</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css" />
+    <style>
+        .response-container {
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+        }
+        .daterangepicker {
+            left: 0;
+        }
+    </style>
+
 </head>
 <body>
     <div class="container">
@@ -22,7 +33,7 @@
                         <a class="nav-link" href="events.html" id="eventsLink">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="events_count.html">Events Count</a>
+                        <a class="nav-link" href="events_count.html">Events Count</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="rules.html" id="rulesLink">Rules</a>
@@ -34,54 +45,51 @@
                         <a class="nav-link" href="update_rules.html" id="update_rules">Update rules</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="perf_monitor.html" id="perf_monitor">Performance monitor</a>
-                    </li>
+                        <a class="nav-link active" href="perf_monitor.html" id="perf_monitor">Performance monitor</a>
                     <li class="nav-item">
                         <a class="nav-link" href="rule_profiler.html" id="rule_profiler">Rule profiler</a>
                     </li>
                 </ul>
             </div>
         </nav>
-        <p></p>
-        <h2>Events Count</h2>
-        <p></p>
+
     </div>
     <div class="container mt-4">
-        <form id="eventsCountForm">
+        <h2>Performance Monitor</h2>
+        <a></a>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="periodStart">Start Date:</label>
+                <input type="date" class="form-control" id="periodStart" required>
+            </div>
+            <div class="form-group">
+                <label for="periodEnd">End Date:</label>
+                <input type="date" class="form-control" id="periodEnd" required>
+            </div>
             <div class="mb-3">
-                <label for="periodSelect" class="form-label">Select Period:</label>
-                <select class="form-select" id="periodSelect">
-                    <option value="all">All</option>
-                    <option value="last_day">Last Day</option>
-                    <option value="last_week">Last Week</option>
-                    <option value="last_month">Last Month</option>
+                <label for="aggrSelect" class="form-label">Aggregate (true/false):</label>
+                <select class="form-select" id="aggrSelect">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label for="typeSelect" class="form-label">Select Type:</label>
-                <select class="form-select" id="typeSelect">
-                    <option value="sid">SID</option>
-                    <option value="addr">Address</option>
-                </select>
+                <label for="prefixInput" class="form-label">Prefix (optional):</label>
+                <input type="text" class="form-control" id="prefixInput" placeholder="Optional">
             </div>
-            <button type="button" class="btn btn-primary" onclick="getEventsCount()">Get Events Count</button>
+            <button type="button" class="btn btn-primary" onclick="getPerfData()">Get Data</button>
         </form>
-
         <div class="mt-4">
-            <table class="table">
-                <thead id="eventsCountTableHeader">
-                    <!-- Table headers will be dynamically populated here -->
-                </thead>
-                <tbody id="eventsCountTableBody"></tbody>
-            </table>
+            <h4>Data:</h4>
+            <pre class="response-container" id="perfDataResponse"></pre>
         </div>
     </div>
-
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
-    <script src="js/events_count.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.js"></script>
+    <script src="js/perf_monitor.js"></script>
 </body>
 </html>

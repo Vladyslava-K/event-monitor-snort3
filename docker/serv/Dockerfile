@@ -11,7 +11,7 @@ RUN mkdir log_files && \
     mkdir snort_logs
 
 RUN pip install -r requirements.txt
-RUN /usr/local/bin/pulledpork/pulledpork.py -c configs/pulledpork.conf
+RUN /usr/local/bin/pulledpork/pulledpork.py -c configs/initial_pulledpork.conf
 
 ENV PYTHONPATH="/usr/src/event-monitor-snort3/"
 
