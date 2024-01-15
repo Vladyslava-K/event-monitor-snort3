@@ -43,7 +43,65 @@
             </div>
         </nav>
         <p></p>
-        <p>Here should be documentation</p>
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <img src="img/snort.png" alt="snort logo">
+        </div>
+        <h1>Snort - Open Source Intrusion Prevention System (IPS)</h1>
+    <p>Snort is the foremost Open Source Intrusion Prevention System (IPS) in the world. Snort IPS uses a series of rules that help define malicious network activity and uses those rules to find packets that match against them and generates alerts for users.</p>
+    <p>Snort can be deployed inline to stop these packets as well. Snort has three primary uses: As a packet sniffer like tcpdump, as a packet logger — which is useful for network traffic debugging, or it can be used as a full-blown network intrusion prevention system.</p>
+
+    <h2>Python Client-Server Monitor for Snort3</h2>
+    <p>The application you are using now is a client-server monitor for Snort3 in Python. It receives Snort3 intrusion events, parses obtained data, stores it in a PostgreSQL database, and provides a REST API to the client to retrieve summary reports of the stored events.</p>
+
+    <h3>App Capabilities:</h3>
+    <ul>
+        <li>Track and store events.</li>
+        <li>Provide alert counts for each alert SID observed during specified time period (last day/week/month/all recorded).</li>
+        <li>Provide alert counts for each unique client/server address during specified time period (last day/week/month/all recorded).</li>
+        <li>Provide recorded alerts for a given client/server address.</li>
+        <li>Clear alert records stored in the database.</li>
+        <li>Dump rules used by Snort to a file, write them into DB, and provide API for them with filters by gid, sid, and action.</li>
+        <li>New local rules can be added to file from the client.</li>
+        <li>Rules packages can be updated using pulledpork3.</li>
+        <li>Provide the log of all operations in a given time range (between two UTC timestamps; the range has to be less than a week).</li>
+        <li>Server is running in daemon mode.</li>
+        <li>Snort is running on an interface.</li>
+        <li>Snort is running with shell support. Users can run an arbitrary shell command and see the response.</li>
+        <li>Performance monitor is enabled, metrics are stored to MongoDB.</li>
+        <li>Rule profiling is enabled.</li>
+    </ul>
+
+    <h4>Performance Monitoring Requests:</h4>
+    <ul>
+        <li>Get peg count reports between two timestamps.
+            <ul>
+                <li>params:</li>
+                <li>begin (timestamp)</li>
+                <li>end (timestamp)</li>
+                <li>prefix (string, optional) - filter peg counts by name prefix</li>
+            </ul>
+        </li>
+        <li>Get peg count delta between two records which are closest to the provided timestamps.
+            <ul>
+                <li>params:</li>
+                <li>begin (timestamp)</li>
+                <li>end (timestamp)</li>
+                <li>prefix (string, optional) - filter peg counts by name prefix</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h4>Rule Profiling Requests:</h4>
+    <ul>
+        <li>Start rule profiling for a given amount of time.
+            <ul>
+                <li>params:</li>
+                <li>time - time, in minutes, to run rule profiling for</li>
+                <li>until - timestamp after which the profiling should stop. Either time or until has to be provided, but not both.</li>
+            </ul>
+        </li>
+        <li>Get last stored rule profiling result.</li>
+    </ul>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

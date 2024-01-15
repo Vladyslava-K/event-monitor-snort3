@@ -38,6 +38,7 @@ profiler = {
     show = false
   },
   rules = {
-    count = 10
+    count = 10,
+    sort = 'matches'
   }
 }
