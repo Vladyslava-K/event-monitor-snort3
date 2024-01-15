@@ -493,3 +493,20 @@ class PerfMonitor(APIView):
                     item['_id'] = str(item['_id'])
 
         return Response({"response": data})
+
+
+class WriteRule(APIView):
+    """
+    API View to handle the writing of a rule string to a specified file.
+    """
+    def post(self, request):
+        try:
+            received_string = request.data.get('content', '')
+            file_path = '/usr/src/event-monitor-snort3/configs/local.rules'
+
+            with open(file_path, 'a') as file:
+                file.write('\n' + received_string)
+
+            return Response({'success': True, 'message': 'String written to file successfully'})
+        except Exception as e:
+            return Response({'success': False, 'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
