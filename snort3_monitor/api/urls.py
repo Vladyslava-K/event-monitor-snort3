@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (EventsList, EventsCount, RequestList, RulesList, ExecuteCommand, UpdateRules, StartRuleProfiler,
-                    RuleProfilerLast, PerfMonitor)
+                    RuleProfilerLast, PerfMonitor, WriteRule)
 
 
 urlpatterns = [
@@ -14,4 +14,5 @@ urlpatterns = [
     path('rule-profiler', StartRuleProfiler.as_view(), name='rule_profiler'),
     path('rule-profiler-last', RuleProfilerLast.as_view(), name='rule_profiler_last'),
     path('perf-monitor', PerfMonitor.as_view(), name='perf_monitor'),
+    path('write-rule', WriteRule.as_view(), name='write_rule')
 ]

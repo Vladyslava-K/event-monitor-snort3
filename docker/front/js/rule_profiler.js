@@ -3,18 +3,21 @@ function startProfiling() {
     var until = document.getElementById("untilInput").value;
 
     var url = 'http://127.0.0.1:8000/api/v1/rule-profiler?';
+
     if (time) {
         url += 'time=' + time;
+        var endTimestamp = Date.now() + (parseInt(time) * 60 * 1000);
     } else if (until) {
         url += 'until=' + until;
+        var untilTime = new Date(until);
+        var endTimestamp = untilTime.getTime();
     } else {
         alert("Please provide either 'time' or 'until' parameter.");
         return;
     }
 
-    // Set the end timestamp in localStorage
-    var endTimestamp = Date.now() + (parseInt(time) * 60 * 1000);
-    localStorage.setItem("endTimestamp", endTimestamp);
+    // Set the end timestamp in localStorage for both cases
+    localStorage.setItem("endTimestamp", endTimestamp.toString());
 
     // Start the countdown timer
     updateCountdown();
@@ -32,9 +35,11 @@ function startProfiling() {
 
 // Update the countdown timer every second
 function updateCountdown() {
-    var endTimestamp = localStorage.getItem("endTimestamp");
+    var endTimestampStr = localStorage.getItem("endTimestamp");
 
-    if (endTimestamp) {
+    if (endTimestampStr) {
+        var endTimestamp = parseInt(endTimestampStr);
+
         var intervalId = setInterval(function () {
             var now = Date.now();
             var timeLeft = Math.max(0, Math.ceil((endTimestamp - now) / 1000));
